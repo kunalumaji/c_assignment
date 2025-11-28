@@ -84,52 +84,52 @@ void delete_element(struct LinkedList* ll, int element) {
         head = head->next;
     }
 }
-//
-// int main() {
-//
-//     struct LinkedList ll = { 0, NULL, NULL };
-//
-//     printf("Linked list created. Perform following operations.\n");
-//
-//     while (1) {
-//
-//         printf("1. Add element (at the end)\n");
-//         printf("2. Delete element (first occurence if found)\n");
-//         printf("3. Print list (with meta data)\n");
-//         printf("4. Exit\n");
-//
-//         printf("Select > ");
-//         int user_input;
-//         scanf("%d", &user_input);
-//
-//         if (user_input == 1 || user_input == 2) {
-//             printf("Enter element (int type): ");
-//             int user_element;
-//             scanf("%d", &user_element);
-//
-//             if (user_input == 1) {
-//                 struct Node* node = (struct Node*) malloc(sizeof(struct Node));
-//                 node->data = user_element;
-//                 node->previous = ll.tail;
-//                 node->next = NULL;
-//
-//                 insert_node(&ll, node);
-//             }
-//             else {
-//                 delete_element(&ll, user_element);
-//             }
-//         }
-//         else if (user_input == 3) {
-//             print_list(&ll);
-//         }
-//         else if (user_input == 4) {
-//             break;
-//         }
-//         else {
-//             printf("Invalid input\n");
-//             break;
-//         }
-//     }
-//
-//     return 0;
-// }
+
+int main() {
+
+    struct LinkedList ll = { 0, NULL, NULL };
+
+    printf("Linked list created. Perform following operations.\n");
+
+    while (1) {
+
+        printf("1. Add element (at the end)\n");
+        printf("2. Delete element (first occurence if found)\n");
+        printf("3. Print list (with meta data)\n");
+        printf("4. Exit\n");
+
+        printf("Select > ");
+        int user_input;
+        scanf("%d", &user_input);
+
+        if (user_input == 1 || user_input == 2) {
+            printf("Enter element (int type): ");
+            int user_element;
+            scanf("%d", &user_element);
+
+            if (user_input == 1) {
+                struct Node* node = (struct Node*) malloc(sizeof(struct Node));
+                node->data = user_element;
+                node->previous = ll.tail;
+                node->next = NULL;
+
+                insert_node(&ll, node);
+            }
+            else {
+                delete_element(&ll, user_element);
+            }
+        }
+        else if (user_input == 3) {
+            print_list(&ll);
+        }
+        else if (user_input == 4) {
+            break;
+        }
+        else {
+            printf("Invalid input\n");
+            break;
+        }
+    }
+
+    return 0;
+}

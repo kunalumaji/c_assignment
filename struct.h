@@ -11,3 +11,11 @@ struct LinkedList {
     struct Node* head;
     struct Node* tail;
 };
+
+struct queue {
+    int size;
+    int start;
+    int end;
+    int* data;
+};
+typedef struct queue queue;
