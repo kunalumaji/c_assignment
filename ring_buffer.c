@@ -33,6 +33,9 @@ struct TX_RING {
 };
 
 
+const int producers_count = 8;
+
+
 struct TX_RING* init_tx_ring(int total_slots) {
 
     struct TX_RING* ring = malloc(sizeof(struct TX_RING));
@@ -41,7 +44,7 @@ struct TX_RING* init_tx_ring(int total_slots) {
     sem_init(&(ring->free_slots), 0, total_slots);
     sem_init(&(ring->occupied_slots), 0, 0);
     sem_init(&(ring->buffer_lock), 0, 1);
-    ring->consumer_index = -1;
+    ring->consumer_index = 0;
     ring->producer_index = 0;
     ring->descriptor_array = malloc(sizeof(struct ring_desc)*total_slots);
 
@@ -79,16 +82,13 @@ void* produce(void* arg) {
     else
         printf("descriptor array is null\n");
 
-    tx_ring->producer_index = (tx_ring->producer_index + 1) % tx_ring->size;
+    printf("produced %d index: %d\n", desc->length, tx_ring->producer_index);
 
-    if (tx_ring->consumer_index == -1) {
-        tx_ring->consumer_index += 1;
-    }
+
+    tx_ring->producer_index = (tx_ring->producer_index + 1) % tx_ring->size;
 
     sem_post(&(tx_ring->buffer_lock));
     sem_post(&(tx_ring->occupied_slots));
-
-    printf("produced %d\n", desc->length);
 
     return NULL;
 
@@ -109,12 +109,14 @@ struct ring_desc* consume(struct TX_RING* tx_ring) {
         descriptor->head = d.head;
         descriptor->tail = d.tail;
 
+        printf("-->consumed %d index %d\n", descriptor->length, tx_ring->consumer_index); //consider that length as unique id for desc, just for e.g.
+
         tx_ring->consumer_index = (tx_ring->consumer_index + 1) % tx_ring->size;
 
-        if (tx_ring->consumer_index == tx_ring->producer_index) {
-            tx_ring->consumer_index = -1;
-            tx_ring->producer_index = 0;
-        }
+        // if (tx_ring->consumer_index == tx_ring->producer_index) {
+        //     tx_ring->consumer_index = -1;
+        //     tx_ring->producer_index = 0;
+        // }
 
 
         //increase free slot and decrease occupied slot by 1
@@ -130,11 +132,10 @@ void* consume_packets(void* arg) {
 
     struct TX_RING* tx_ring = (struct TX_RING*) arg;
 
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < producers_count; i++) {
         // pthread_join(thread_array[i], NULL);
         struct ring_desc* desc = consume(tx_ring);
         if (desc != NULL) {
-            printf("consumed %d\n", desc->length); //consider that length as unique id for desc, just for e.g.
             free(desc);
         }
     }
@@ -145,9 +146,9 @@ void* consume_packets(void* arg) {
 
 int main() {
 
-    struct TX_RING* tx_ring = init_tx_ring(1024);
+    struct TX_RING* tx_ring = init_tx_ring(5);
 
-    pthread_t thread_array[1000];
+    pthread_t thread_array[producers_count];
 
     // for (int i = 0; i < 1000; i++) {
     //     // pthread_join(thread_array[i], NULL);
@@ -162,7 +163,7 @@ int main() {
 
     pthread_create(&consume_packet_id, NULL, consume_packets, tx_ring);
 
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < producers_count; i++) {
 
         struct ring_desc* producer_desc = malloc(sizeof(struct ring_desc));
 
